@@ -26,6 +26,8 @@ export class HomeComponent implements OnInit{
       (res) => {
         if (res.status === 201){
           const body: Object = JSON.parse(res.body);
+          localStorage.setItem("rejoinCode", body['join_code']);
+          this.player.playerNumber = 1;
           this.router.navigate(['game', body['room_num']]);
         }
       })
