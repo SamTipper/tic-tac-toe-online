@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { PlayerService } from 'src/app/services/player.service';
+import { HttpService } from 'src/app/services/http.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +12,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class HomeComponent implements OnInit{
   nameForm: FormGroup;
 
+  constructor(private player: PlayerService, private http: HttpService, private router: Router) { }
+
   ngOnInit(){
     this.nameForm = new FormGroup({
       name: new FormControl(null, Validators.required)
@@ -16,7 +21,14 @@ export class HomeComponent implements OnInit{
   }
 
   onSubmitName(){
-    localStorage.setItem("name", this.nameForm.value.name);
+    this.player.playerName = this.nameForm.value.name;
+    this.http.createGame().subscribe(
+      (res) => {
+        if (res.status === 201){
+          const body: Object = JSON.parse(res.body);
+          this.router.navigate(['game', body['room_num']]);
+        }
+      })
   }
 
 }
