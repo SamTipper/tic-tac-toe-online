@@ -7,7 +7,16 @@
     <title>Playing Tic-Tac-Toe</title>
 </head>
 <body>
-    <section>
+
+    <div *ngIf="!playerName" class="center-box">
+        <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
+            <input placeholder="Enter your name" formControlName="name">
+            <button class="btn btn-primary" [disabled]="!nameForm.valid" type="submit">Play!</button>
+        </form>
+    </div>
+
+
+    <section *ngIf="playerName">
         <div class="game-container">
             <div (click)="placePiece($event)" class="cell"></div>
             <div (click)="placePiece($event)" class="cell"></div>
@@ -20,5 +29,9 @@
             <div (click)="placePiece($event)" class="cell"></div>
         </div>
     </section>
+
+    <div *ngIf="playerName" class="player-box">
+        <label>{{ playerName }}</label>
+    </div>
 </body>
 </html>
