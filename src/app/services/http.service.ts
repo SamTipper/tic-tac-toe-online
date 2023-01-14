@@ -8,20 +8,22 @@ export class HttpService {
 
   constructor(private http: HttpClient) { }
 
-  JoinGame(gameCode){
+  JoinGame(gameCode, playerName){
     return this.http.get(
       "https://Tic-Tac-Toe-API.samtipper.repl.co/join-game",
       {
+        headers: {"roomCode": gameCode,"p2": playerName},
         observe: "response",
         responseType: "text"
       }
     )
   }
 
-  createGame(){
+  createGame(name){
     return this.http.get(
       "https://Tic-Tac-Toe-API.samtipper.repl.co/create-game",
       {
+        headers: {"p1": name},
         observe: "response",
         responseType: "text"
       }
@@ -38,4 +40,5 @@ export class HttpService {
       }
     )
   }
+  
 }

@@ -16,21 +16,21 @@
     </div>
 
 
-    <section *ngIf="playerName">
+    <section *ngIf="playerName && doneLoading">
         <div class="game-container">
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
-            <div (click)="placePiece($event)" class="cell"></div>
+            <div [innerHTML]="board[0][0]" (click)="placePiece($event, 0, 0)" class="cell"></div>
+            <div [innerHTML]="board[0][1]" (click)="placePiece($event, 0, 1)" class="cell"></div>
+            <div [innerHTML]="board[0][2]" (click)="placePiece($event, 0, 2)" class="cell"></div>
+            <div [innerHTML]="board[1][0]" (click)="placePiece($event, 1, 0)" class="cell"></div>
+            <div [innerHTML]="board[1][1]" (click)="placePiece($event, 1, 1)" class="cell"></div>
+            <div [innerHTML]="board[1][2]" (click)="placePiece($event, 1, 2)" class="cell"></div>
+            <div [innerHTML]="board[2][0]" (click)="placePiece($event, 2, 0)" class="cell"></div>
+            <div [innerHTML]="board[2][1]" (click)="placePiece($event, 2, 1)" class="cell"></div>
+            <div [innerHTML]="board[2][2]" (click)="placePiece($event, 2, 2)" class="cell"></div>
         </div>
     </section>
 
-    <div *ngIf="playerName" class="player-box">
+    <div *ngIf="playerName && doneLoading" class="player-box">
         <label>{{ playerName }}</label>
     </div>
 </body>

@@ -20,9 +20,11 @@ export class HomeComponent implements OnInit{
     });
   }
 
+  
+
   onSubmitName(){
-    this.player.playerName = this.nameForm.value.name;
-    this.http.createGame().subscribe(
+    this.player.firstLetterToUpper(this.nameForm.value.name);
+    this.http.createGame(this.player.playerName).subscribe(
       (res) => {
         if (res.status === 201){
           const body: Object = JSON.parse(res.body);
