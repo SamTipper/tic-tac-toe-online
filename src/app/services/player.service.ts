@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
+import { HttpService } from './http.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerService {
   playerName: string;
+  opponentName: string;
   playerNumber: number;
   thisPlayersTurn: boolean;
 
-  constructor() { }
+  constructor(private http: HttpService) { }
 
   firstLetterToUpper(name){
     const splitName: string[] = name.split(" ");
@@ -19,4 +21,6 @@ export class PlayerService {
 
     return this.playerName;
   }
+
+  
 }

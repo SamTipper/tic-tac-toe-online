@@ -14,6 +14,8 @@ import { SocketioService } from 'src/app/services/socketio.service';
 })
 export class GameComponent implements OnInit, OnDestroy {
   playerName: string;
+  opponentName: string;
+  players: Object = {};
   nameForm: FormGroup;
   gameCode: number;
   gameCodeSubscriber: Subscription;
@@ -21,6 +23,7 @@ export class GameComponent implements OnInit, OnDestroy {
   board = [[], [], []];
   gameOver: boolean = false;
   doneLoading: boolean = false;
+  opponentFound: boolean = false;
   winner: string;
 
   constructor(private route: ActivatedRoute,
@@ -80,18 +83,31 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.gameCode !== undefined){
       this.gameCodeSubscriber.unsubscribe();
     }
+
+    // Websocketing
     this.socket.connectToSocket();
-    this.socket.joinRoom(this.gameCode);
-    this.socket.activateListeners()
+    if (this.player.playerNumber === 1){
+      this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
+    }
+    this.socket.activateListeners();
+
     this.socket.dataEmitter.subscribe((val) => {
       this.gameDetails = val;
+      this.players = JSON.parse(this.gameDetails['players']);
       this.loadBoard();
       if (this.gameDetails['game_over'] === false){
         this.swapTurns();
       } else {
-        this.player.thisPlayersTurn = false;
-        this.gameOver = true;
+        this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
         localStorage.removeItem("rejoinCode");
+      }
+    })
+    this.socket.unlockGameEmitter.subscribe((val) => {
+      if (val['unlock'] === true){
+        const players = JSON.parse(val['players'])
+        this.player.opponentName = this.player.playerNumber === 1 ? players['p2'] : players['p1'];
+        this.opponentName = this.player.opponentName;
+        this.opponentFound = true;
       }
     })
   }
@@ -105,6 +121,9 @@ export class GameComponent implements OnInit, OnDestroy {
       if (res.status === 200){
         localStorage.setItem("rejoinCode", res.body);
         this.doneLoading = true;
+        if (this.player.playerNumber === 2){
+          this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
+        }
       }
     });
     
@@ -134,7 +153,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placePiece(event, x, y){
-    if (event.srcElement.innerHTML.trim() === "" && this.player.thisPlayersTurn === true){
+    if (event.srcElement.innerHTML.trim() === "" && this.player.thisPlayersTurn === true && this.opponentFound == true){
       this.player.playerNumber === 1 ? event.srcElement.innerHTML = "X" : event.srcElement.innerHTML = "O";
       this.player.thisPlayersTurn = false;
       const serverData = JSON.stringify({game: this.gameCode, turn: this.player.playerNumber, position: [x, y]});

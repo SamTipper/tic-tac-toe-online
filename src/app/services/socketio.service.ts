@@ -7,6 +7,7 @@ import { io } from 'socket.io-client';
 export class SocketioService {
   socket;
   dataEmitter = new EventEmitter<Object>();
+  unlockGameEmitter = new EventEmitter<Object>();
 
   constructor() { }
 
@@ -14,8 +15,8 @@ export class SocketioService {
     this.socket = io("https://Tic-Tac-Toe-API.samtipper.repl.co");
   }
 
-  joinRoom(gameCode){
-    this.socket.emit('join', {"room": gameCode});
+  joinRoom(gameCode, playerNumber, playerName){
+    this.socket.emit('join', {"room": gameCode, "playerNumber": playerNumber, "playerName": playerName});
   }
 
   submitData(gameCode, data){
@@ -25,6 +26,10 @@ export class SocketioService {
   activateListeners(){
     this.socket.addEventListener('message', ev => {
       this.dataEmitter.emit(JSON.parse(ev));
+    })
+
+    this.socket.addEventListener('unlock-game', ev => {
+      this.unlockGameEmitter.emit(JSON.parse(ev));
     })
   }
 

@@ -31,11 +31,12 @@
     </section>
 
     <div *ngIf="playerName && doneLoading" class="player-box">
-        <label>{{ playerName }}</label>
+        <h3>{{ playerName }}</h3>
+        <h3 *ngIf="opponentName">{{ opponentName }}</h3>
     </div>
 
     <div *ngIf="gameOver">
-        <h1>Game Over!</h1>
+        <h1>{{ gameDetails['turn'] === 1 ? players['p2'] : players['p1'] }} Wins!</h1>
     </div>
 </body>
 </html>
