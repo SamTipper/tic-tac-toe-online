@@ -21,7 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   board = [[], [], []];
   gameOver: boolean = false;
   doneLoading: boolean = false;
-  messsageListener;
+  winner: string;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -86,7 +86,13 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.dataEmitter.subscribe((val) => {
       this.gameDetails = val;
       this.loadBoard();
-      this.swapTurns();
+      if (this.gameDetails['game_over'] === false){
+        this.swapTurns();
+      } else {
+        this.player.thisPlayersTurn = false;
+        this.gameOver = true;
+        localStorage.removeItem("rejoinCode");
+      }
     })
   }
 

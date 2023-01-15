@@ -33,5 +33,9 @@
     <div *ngIf="playerName && doneLoading" class="player-box">
         <label>{{ playerName }}</label>
     </div>
+
+    <div *ngIf="gameOver">
+        <h1>Game Over!</h1>
+    </div>
 </body>
 </html>
