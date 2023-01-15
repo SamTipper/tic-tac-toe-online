@@ -6,8 +6,6 @@ import { io } from 'socket.io-client';
 })
 export class SocketioService {
   socket;
-  socketListener;
-  gameData: Object;
   dataEmitter = new EventEmitter<Object>();
 
   constructor() { }

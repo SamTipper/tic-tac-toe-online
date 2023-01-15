@@ -137,7 +137,6 @@ export class GameComponent implements OnInit, OnDestroy {
     if (event.srcElement.innerHTML.trim() === "" && this.player.thisPlayersTurn === true){
       this.player.playerNumber === 1 ? event.srcElement.innerHTML = "X" : event.srcElement.innerHTML = "O";
       this.player.thisPlayersTurn = false;
-      // this.board
       const serverData = JSON.stringify({game: this.gameCode, turn: this.player.playerNumber, position: [x, y]});
       this.socket.submitData(this.gameCode, serverData);
     }
