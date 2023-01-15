@@ -31,10 +31,25 @@ export class HttpService {
   }
 
   getRoomDetails(gameCode){
+    const headers = {"roomCode": gameCode}
+    if (localStorage.getItem("rejoinCode") !== null){
+      headers['rejoinCode'] = localStorage.getItem("rejoinCode");
+    }
     return this.http.get(
       "https://Tic-Tac-Toe-API.samtipper.repl.co/get-room-details",
       {
-        headers: {"roomCode": gameCode},
+        headers: headers,
+        observe: "response",
+        responseType: "text"
+      }
+    )
+  }
+
+  getPlayerNumOnRejoin(gameCode){
+    return this.http.get(
+      "https://Tic-Tac-Toe-API.samtipper.repl.co/get-player-number",
+      {
+        headers: {"roomCode": gameCode, "rejoinCode": localStorage.getItem("rejoinCode")},
         observe: "response",
         responseType: "text"
       }

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { interval, isObservable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { HttpService } from 'src/app/services/http.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
@@ -47,7 +47,7 @@ export class GameComponent implements OnInit, OnDestroy {
       });
     }
     if (this.player.playerNumber === undefined
-      && localStorage.getItem("rejoinCode") === undefined){ // Join from link with rejoin code
+      && localStorage.getItem("rejoinCode") === null){ // Join from link with rejoin code
       this.player.playerNumber = 2;
       this.playerNumber = 2;
 
@@ -56,11 +56,16 @@ export class GameComponent implements OnInit, OnDestroy {
       this.player.playerNumber = 1;
       this.playerNumber = 1;
 
-    } else if (this.player.playerNumber == undefined 
+    } else if (this.player.playerNumber === undefined 
       && localStorage.getItem("rejoinCode") !== undefined){ // Join from link
-      this.player.playerNumber = 2;
-      this.playerNumber = 2;
-      
+      this.http.getPlayerNumOnRejoin(this.gameCode).subscribe((res) => {
+        if (res.status === 200){
+          this.player.playerNumber = +res.body;
+          this.playerNumber = +res.body;
+          console.log(this.player.playerNumber);
+        }
+      })
+    
     } 
 
     this.http.getRoomDetails(this.gameCode).subscribe(
@@ -118,6 +123,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.socket.dataEmitter.unsubscribe();
+    this.socket.unlockGameEmitter.unsubscribe();
   }
 
   onJoinGame(){

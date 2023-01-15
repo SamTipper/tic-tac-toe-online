@@ -20,8 +20,6 @@ export class HomeComponent implements OnInit{
     });
   }
 
-  
-
   onSubmitName(){
     this.player.firstLetterToUpper(this.nameForm.value.name);
     this.http.createGame(this.player.playerName).subscribe(
