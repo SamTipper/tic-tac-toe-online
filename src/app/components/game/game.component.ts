@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { isObservable, Subscription } from 'rxjs';
+import { interval, isObservable, Subscription } from 'rxjs';
 import { HttpService } from 'src/app/services/http.service';
 import { PlayerService } from 'src/app/services/player.service';
+import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
+  providers: [SocketioService]
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
   playerName: string;
   nameForm: FormGroup;
   gameCode: number;
@@ -19,12 +21,13 @@ export class GameComponent implements OnInit {
   board = [[], [], []];
   gameOver: boolean = false;
   doneLoading: boolean = false;
-  socket: WebSocket;
+  messsageListener;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private http: HttpService,
-              private player: PlayerService ) {
+              private player: PlayerService,
+              private socket: SocketioService) {
 
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -32,7 +35,6 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit(){
-
     if (this.player.playerName !== undefined){
       this.playerName = this.player.playerName;
     } else {
@@ -78,6 +80,18 @@ export class GameComponent implements OnInit {
     if (this.gameCode !== undefined){
       this.gameCodeSubscriber.unsubscribe();
     }
+    this.socket.connectToSocket();
+    this.socket.joinRoom(this.gameCode);
+    this.socket.activateListeners()
+    this.socket.dataEmitter.subscribe((val) => {
+      this.gameDetails = val;
+      this.loadBoard();
+      this.swapTurns();
+    })
+  }
+
+  ngOnDestroy() {
+    this.socket.dataEmitter.unsubscribe();
   }
 
   onJoinGame(){
@@ -100,18 +114,7 @@ export class GameComponent implements OnInit {
     }
   }
 
-  connect(){
-    this.socket = new WebSocket('ws://' + 'Tic-Tac-Toe-API.samtipper.repl.co' + '/connect');
-    this.socket.addEventListener('message', ev => {
-      this.gameDetails = JSON.parse(ev['data']);
-      console.log(this.gameDetails);
-      this.loadBoard();
-      this.swapTurns();
-    })
-  }
-
   loadBoard(){
-    console.log("hi");
     const board = JSON.parse(this.gameDetails['board']);
     let row = 0;
     this.board = [[], [], []];
@@ -121,7 +124,6 @@ export class GameComponent implements OnInit {
         row++;
       }
     });
-    this.connect();
     this.doneLoading = true;
   }
 
@@ -131,7 +133,7 @@ export class GameComponent implements OnInit {
       this.player.thisPlayersTurn = false;
       // this.board
       const serverData = JSON.stringify({game: this.gameCode, turn: this.player.playerNumber, position: [x, y]});
-      this.socket.send(serverData);
+      this.socket.submitData(this.gameCode, serverData);
     }
     
   }
