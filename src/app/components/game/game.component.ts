@@ -16,6 +16,7 @@ export class GameComponent implements OnInit, OnDestroy {
   playerName: string;
   opponentName: string;
   playerNumber: number;
+  gameCreator: boolean;
   players: Object = {};
   nameForm: FormGroup;
   gameCode: number;
@@ -41,69 +42,35 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnInit(){
     if (this.player.playerName !== undefined){
       this.playerName = this.player.playerName;
+      this.gameCreator = true;
+      this.onJoinGame();
     } else {
       this.nameForm = new FormGroup({
         name: new FormControl(null, Validators.required)
       });
     }
-    if (this.player.playerNumber === undefined
-      && localStorage.getItem("rejoinCode") === null){ // Join from link with rejoin code
-      this.player.playerNumber = 2;
-      this.playerNumber = 2;
 
-    } else if (this.player.playerNumber !== undefined 
-      && localStorage.getItem("rejoinCode") !== undefined){ // Join from game creation
-      this.player.playerNumber = 1;
-      this.playerNumber = 1;
-
-    } else if (this.player.playerNumber === undefined 
-      && localStorage.getItem("rejoinCode") !== undefined){ // Join from link
-      this.http.getPlayerNumOnRejoin(this.gameCode).subscribe((res) => {
-        if (res.status === 200){
-          this.player.playerNumber = +res.body;
-          this.playerNumber = +res.body;
-          console.log(this.player.playerNumber);
-        }
-      })
-    
-    } 
-
-    this.http.getRoomDetails(this.gameCode).subscribe(
-    (res) => {
-      if (res.status === 200){
-        this.gameDetails = JSON.parse(res.body);
-
-          if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
-            this.player.thisPlayersTurn = true;
-          } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
-            this.player.thisPlayersTurn = true;
-          } else {
-            this.player.thisPlayersTurn = false;
-          }
-          this.loadBoard();
-        
-      }
-    },
-    (error) => {
-      console.log(error);
-      this.router.navigate(['/']);
-    })
-    
     if (this.gameCode !== undefined){
       this.gameCodeSubscriber.unsubscribe();
     }
+  }
 
-    // Websocketing
+  ngOnDestroy() {
+    this.socket.dataEmitter.unsubscribe();
+    this.socket.unlockGameEmitter.unsubscribe();
+  }
+
+  connectToSocket(){
     this.socket.connectToSocket();
-    if (this.player.playerNumber === 1){
-      this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
-    }
     this.socket.activateListeners();
+    this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
 
     this.socket.dataEmitter.subscribe((val) => {
       this.gameDetails = val;
-      this.players = JSON.parse(this.gameDetails['players']);
       this.loadBoard();
+      this.players = JSON.parse(this.gameDetails['players']);
+      this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
+      this.opponentName = this.player.opponentName;
       if (this.gameDetails['game_over'] === false){
         this.swapTurns();
       } else {
@@ -114,29 +81,52 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.unlockGameEmitter.subscribe((val) => {
       if (val['unlock'] === true){
         const players = JSON.parse(val['players'])
+        console.log(players['p2']);
         this.player.opponentName = this.player.playerNumber === 1 ? players['p2'] : players['p1'];
         this.opponentName = this.player.opponentName;
         this.opponentFound = true;
       }
     })
+    this.doneLoading = true;
   }
 
-  ngOnDestroy() {
-    this.socket.dataEmitter.unsubscribe();
-    this.socket.unlockGameEmitter.unsubscribe();
+  getRoomDetails(){
+    this.http.getRoomDetails(this.gameCode).subscribe(
+      (res) => {
+        if (res.status === 200){
+          this.gameDetails = JSON.parse(res.body);
+  
+            if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
+              this.player.thisPlayersTurn = true;
+            } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
+              this.player.thisPlayersTurn = true;
+            } else {
+              this.player.thisPlayersTurn = false;
+            }
+            this.loadBoard();
+            this.connectToSocket();
+        }
+      },
+      (error) => {
+        console.log(error);
+        this.router.navigate(['/']);
+      })
   }
 
   onJoinGame(){
-    this.http.JoinGame(this.gameCode, this.playerName).subscribe((res) =>{
-      if (res.status === 200){
-        localStorage.setItem("rejoinCode", res.body);
-        this.doneLoading = true;
-        if (this.player.playerNumber === 2){
-          this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
+      this.http.JoinGame(this.gameCode, this.playerName, this.gameCreator.toString()).subscribe((res) =>{
+        if (res.status === 200){
+          const data: Object = JSON.parse(res.body);
+          localStorage.setItem("rejoinCode", data['rejoin_code']);
+          this.player.playerNumber = data['player_num'];
+          this.playerNumber = this.player.playerNumber;
+          this.getRoomDetails();
         }
-      }
-    });
-    
+      },
+      (error) => {
+        console.log(error);
+        this.router.navigate(['/']);
+      });
   }
 
   swapTurns(){
@@ -159,7 +149,6 @@ export class GameComponent implements OnInit, OnDestroy {
         row++;
       }
     });
-    this.doneLoading = true;
   }
 
   placePiece(event, x, y){
@@ -174,6 +163,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onSubmitName(){
     this.playerName = this.player.firstLetterToUpper(this.nameForm.value.name);
+    this.gameCreator = false;
     this.onJoinGame();
   }
 

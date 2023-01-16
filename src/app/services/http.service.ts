@@ -8,11 +8,13 @@ export class HttpService {
 
   constructor(private http: HttpClient) { }
 
-  JoinGame(gameCode, playerName){
+  JoinGame(gameCode, playerName, isGameCreator){
+    const joinCode = localStorage.getItem("rejoinCode") !== null ? localStorage.getItem("rejoinCode") : "";
+    console.log(isGameCreator);
     return this.http.get(
       "https://Tic-Tac-Toe-API.samtipper.repl.co/join-game",
       {
-        headers: {"roomCode": gameCode,"p2": playerName},
+        headers: {"roomCode": gameCode,"player": playerName, "joinCode": joinCode, "isGameCreator": isGameCreator},
         observe: "response",
         responseType: "text"
       }
@@ -45,9 +47,9 @@ export class HttpService {
     )
   }
 
-  getPlayerNumOnRejoin(gameCode){
+  getRoomCreator(gameCode){
     return this.http.get(
-      "https://Tic-Tac-Toe-API.samtipper.repl.co/get-player-number",
+      "https://Tic-Tac-Toe-API.samtipper.repl.co/is-room-creator",
       {
         headers: {"roomCode": gameCode, "rejoinCode": localStorage.getItem("rejoinCode")},
         observe: "response",
