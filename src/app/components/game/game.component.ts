@@ -46,7 +46,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.onJoinGame();
     } else {
       this.nameForm = new FormGroup({
-        name: new FormControl(null, Validators.required)
+        name: new FormControl(null, [Validators.required, Validators.maxLength(10)])
       });
     }
 

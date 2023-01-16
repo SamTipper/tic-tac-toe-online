@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit{
 
   ngOnInit(){
     this.nameForm = new FormGroup({
-      name: new FormControl(null, Validators.required)
+      name: new FormControl(null, [Validators.required, Validators.maxLength(10)])
     });
   }
 

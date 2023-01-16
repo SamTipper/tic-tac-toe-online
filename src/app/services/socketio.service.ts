@@ -19,6 +19,10 @@ export class SocketioService {
     this.socket.emit('join', {"room": gameCode, "playerNumber": playerNumber, "playerName": playerName});
   }
 
+  leaveRoom(gameCode) { // TODO
+
+  }
+
   submitData(gameCode, data){
     this.socket.emit('submit-data', {"room": gameCode, "data": data});
   }
