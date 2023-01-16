@@ -46,16 +46,5 @@ export class HttpService {
       }
     )
   }
-
-  getRoomCreator(gameCode){
-    return this.http.get(
-      "https://Tic-Tac-Toe-API.samtipper.repl.co/is-room-creator",
-      {
-        headers: {"roomCode": gameCode, "rejoinCode": localStorage.getItem("rejoinCode")},
-        observe: "response",
-        responseType: "text"
-      }
-    )
-  }
   
 }
