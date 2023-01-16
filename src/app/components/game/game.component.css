@@ -1,36 +1,41 @@
 body {
-    font-family: "Arial", sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 section {
-    text-align: center;
+  text-align: center;
 }
 
 .game-container {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    width: 306px;
-    margin: 10px auto;
-    background-color: #11213a;
-    color: #04c0b2;
-    margin-top: 15%;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  width: 307px;
+  width: 306px;
+  margin: 10px auto;
+  background-color: #11213a;
+  color: #04c0b2;
+  margin-top: 15%;
 }
 
 .cell {
-    font-family: "Permanent Marker", cursive;
-    width: 100px;
-    height: 100px;
-    box-shadow: 2px 2px 2px 2px #ecd7ba;
-    border: 2px solid #ecd7ba;
-    cursor: pointer;
-    line-height: 100px;
-    font-size: 60px;
+  font-family: "Permanent Marker", cursive;
+  width: 100px;
+  height: 100px;
+  box-shadow: 2px 2px 2px 2px #ecd7ba;
+  border: 2px solid #ecd7ba;
+  cursor: pointer;
+  line-height: 100px;
+  font-size: 60px;
 }
 
-.center-box{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
+.center-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
+.player-box > h3{
+  display: inline;
+  margin: 0 5%;
 }
