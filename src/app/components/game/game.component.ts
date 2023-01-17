@@ -21,6 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   players: Object = {};
   chat: string[] = [];
   nameForm: FormGroup;
+  chatForm: FormGroup;
   gameCode: string;
   gameCodeSubscriber: Subscription;
   gameDetails: Object;
@@ -33,6 +34,7 @@ export class GameComponent implements OnInit, OnDestroy {
   rematchRequested: boolean = false;
   listeningForRematch: boolean = false;
   opponentWantsRematch: boolean = false;
+  disableChat: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -47,6 +49,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(){
+    //this.player.playerName = "Sam";
     if (this.player.playerName !== undefined){
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -57,6 +60,10 @@ export class GameComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.chatForm = new FormGroup({
+      message: new FormControl(null, Validators.required)
+    });
+
     if (this.gameCode !== undefined){
       this.gameCodeSubscriber.unsubscribe();
     }
@@ -66,6 +73,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.dataEmitter.unsubscribe();
     this.socket.unlockGameEmitter.unsubscribe();
     this.socket.listenForRematchEmitter.unsubscribe();
+    this.socket.listenForMessages.unsubscribe();
   }
 
   connectToSocket(){
@@ -98,6 +106,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
       }
     })
+    this.listenForMessages();
     this.doneLoading = true;
     this.toastr.success("Game joined Successfully");
   }
@@ -107,7 +116,7 @@ export class GameComponent implements OnInit, OnDestroy {
       (res) => {
         if (res.status === 200){
           this.gameDetails = JSON.parse(res.body);
-  
+
             if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
               this.player.thisPlayersTurn = true;
             } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
@@ -115,6 +124,7 @@ export class GameComponent implements OnInit, OnDestroy {
             } else {
               this.player.thisPlayersTurn = false;
             }
+            this.chat = JSON.parse(this.gameDetails['chat']);
             this.loadBoard();
             this.connectToSocket();
         }
@@ -220,5 +230,22 @@ export class GameComponent implements OnInit, OnDestroy {
     this.gameCreator = false;
     this.onJoinGame();
   }
+
+  listenForMessages(){
+    this.socket.listenForMessages.subscribe((val) => {
+      if (val['author'] !== this.playerName){
+        this.chat.push(val['message']);
+      }
+    })
+  }
+
+  onSubmitMessage(){
+    this.disableChat = true;
+    this.socket.sendMessage(this.gameCode, this.chatForm.value.message, this.playerName);
+    this.chat.push(`${this.playerName}: ${this.chatForm.value.message}`);
+    this.chatForm.reset();
+    this.disableChat = false;
+  }
+
 
 }

@@ -10,7 +10,6 @@ export class HttpService {
 
   JoinGame(gameCode, playerName, isGameCreator){
     const joinCode = localStorage.getItem("rejoinCode") !== null ? localStorage.getItem("rejoinCode") : "";
-    console.log(isGameCreator);
     return this.http.get(
       "https://Tic-Tac-Toe-API.samtipper.repl.co/join-game",
       {
