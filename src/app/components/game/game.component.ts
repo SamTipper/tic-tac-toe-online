@@ -201,10 +201,12 @@ export class GameComponent implements OnInit, OnDestroy {
         this.players = this.gameDetails['players'];
         this.player.thisPlayersTurn = this.player.playerNumber === 1 ? false : true;
         this.player.playerNumber = this.player.playerNumber === 1 ? 2 : 1;
-        this.playerNumber = this.player.playerNumber
+        this.playerNumber = this.player.playerNumber;
         this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
         this.opponentName = this.player.opponentName;
         this.chat = [];
+        localStorage.setItem("rejoinCode", this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
+        delete this.gameDetails['join_codes'];
         this.loadBoard();
         this.opponentFound = true; this.gameOver = false; this.rematchRequested = false;
         this.toastr.success("Rematch Successful");
