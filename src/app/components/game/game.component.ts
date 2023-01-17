@@ -65,6 +65,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.socket.dataEmitter.unsubscribe();
     this.socket.unlockGameEmitter.unsubscribe();
+    this.socket.listenForRematchEmitter.unsubscribe();
   }
 
   connectToSocket(){
@@ -89,7 +90,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.unlockGameEmitter.subscribe((val) => {
       if (val['unlock'] === true){
         const players = JSON.parse(val['players'])
-        console.log(players['p2']);
         this.player.opponentName = this.player.playerNumber === 1 ? players['p2'] : players['p1'];
         this.opponentName = this.player.opponentName;
         this.opponentFound = true;
