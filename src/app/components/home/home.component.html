@@ -10,7 +10,7 @@
     <div class="center-box">
         <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
             <input placeholder="Enter your name" formControlName="name">
-            <button class="btn btn-primary" [disabled]="!nameForm.valid" type="submit">Play!</button>
+            <button class="btn btn-primary" [disabled]="!nameForm.valid || joiningGame" type="submit">Play!</button>
         </form>
     </div>
 </body>

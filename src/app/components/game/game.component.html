@@ -28,6 +28,15 @@
             <div [innerHTML]="board[2][1]" (click)="placePiece($event, 2, 1)" class="cell"></div>
             <div [innerHTML]="board[2][2]" (click)="placePiece($event, 2, 2)" class="cell"></div>
         </div>
+
+        <div *ngIf="playerName && doneLoading" class="chat-box">
+            <h4>Chat</h4>
+            <div class="chat-area">
+                <span *ngFor="let message of chat">{{ message }}</span>
+            </div>
+            <button (click)="voteForRematch()" [disabled]="!gameOver || rematchRequested" class="btn btn-primary">Rematch</button>
+        </div>
+        
         <div *ngIf="playerName && doneLoading" class="player-box">
             <h3 [ngStyle]="{color: gameDetails['turn'] === playerNumber && opponentName && !gameOver ? 'green' : 'black'}">{{ playerName }}</h3>
             <h3 [ngStyle]="{color: gameDetails['turn'] !== playerNumber && opponentName && !gameOver ? 'green' : 'black'}" *ngIf="opponentName">{{ opponentName }}</h3>

@@ -39,3 +39,27 @@ section {
   display: inline;
   margin: 0 5%;
 }
+.chat-box{
+  max-width: 50%;
+  max-height: 25%;
+  height: 250px;
+  width: 25vw;
+  position: absolute;
+  display: inline;
+  top: auto;
+  text-align: center;
+  margin-left: auto;
+  margin: 0 17%;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.chat-area{
+  height: 170px;
+  width: 23vw;
+  position: relative;
+  margin: 0 auto;
+  word-wrap: break-word 3%;
+  overflow-y: auto;
+  text-align: left;
+  text-indent: 3%;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}

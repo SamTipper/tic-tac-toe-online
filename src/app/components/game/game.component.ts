@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { HttpService } from 'src/app/services/http.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-game',
@@ -18,8 +19,9 @@ export class GameComponent implements OnInit, OnDestroy {
   playerNumber: number;
   gameCreator: boolean;
   players: Object = {};
+  chat: string[] = [];
   nameForm: FormGroup;
-  gameCode: number;
+  gameCode: string;
   gameCodeSubscriber: Subscription;
   gameDetails: Object;
   board = [[], [], []];
@@ -27,12 +29,17 @@ export class GameComponent implements OnInit, OnDestroy {
   doneLoading: boolean = false;
   opponentFound: boolean = false;
   winner: string;
+  rematchSubscription: Subscription;
+  rematchRequested: boolean = false;
+  listeningForRematch: boolean = false;
+  opponentWantsRematch: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private http: HttpService,
               private player: PlayerService,
-              private socket: SocketioService) {
+              private socket: SocketioService,
+              private toastr: ToastrService) {
 
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -76,6 +83,7 @@ export class GameComponent implements OnInit, OnDestroy {
       } else {
         this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
         localStorage.removeItem("rejoinCode");
+        this.listenForRematch();
       }
     })
     this.socket.unlockGameEmitter.subscribe((val) => {
@@ -85,9 +93,13 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player.opponentName = this.player.playerNumber === 1 ? players['p2'] : players['p1'];
         this.opponentName = this.player.opponentName;
         this.opponentFound = true;
+        if (this.playerNumber === 1){
+          this.toastr.success("Opponent Found!");
+        }
       }
     })
     this.doneLoading = true;
+    this.toastr.success("Game joined Successfully");
   }
 
   getRoomDetails(){
@@ -110,6 +122,7 @@ export class GameComponent implements OnInit, OnDestroy {
       (error) => {
         console.log(error);
         this.router.navigate(['/']);
+        this.toastr.error("An error occurred whilst fetching room details, please try again");
       })
   }
 
@@ -126,6 +139,7 @@ export class GameComponent implements OnInit, OnDestroy {
       (error) => {
         console.log(error);
         this.router.navigate(['/']);
+        this.toastr.error("An error occurred whilst trying to find this room, it may no longer exist");
       });
   }
 
@@ -161,7 +175,45 @@ export class GameComponent implements OnInit, OnDestroy {
     
   }
 
+  voteForRematch(){
+    this.rematchRequested = this.rematchRequested ? false : true;
+    this.socket.voteForRematch(this.gameCode, this.playerNumber, this.rematchRequested);
+  }
+
+  listenForRematch(){
+    this.socket.listenForRematch('open');
+    this.listeningForRematch = true;
+    this.rematchSubscription = this.socket.listenForRematchEmitter.subscribe((val) => {
+
+      if (val['rematch'] === false){
+        if (val['playerNumber'] !== this.playerNumber && val['vote'] === true){
+          this.opponentWantsRematch = true;
+          this.chat.push("System: Your opponent wants a rematch!");
+        } else if (val['vote'] === false){
+          this.opponentWantsRematch = false;
+        }
+
+      } else if (val['rematch'] === true) {
+        this.rematchSubscription.unsubscribe();
+        this.socket.listenForRematch('close');
+        this.opponentWantsRematch = false;
+        this.gameDetails = val['gameData'];
+        this.players = this.gameDetails['players'];
+        this.player.thisPlayersTurn = this.player.playerNumber === 1 ? false : true;
+        this.player.playerNumber = this.player.playerNumber === 1 ? 2 : 1;
+        this.playerNumber = this.player.playerNumber
+        this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
+        this.opponentName = this.player.opponentName;
+        this.chat = [];
+        this.loadBoard();
+        this.opponentFound = true; this.gameOver = false; this.rematchRequested = false;
+        this.toastr.success("Rematch Successful");
+      }
+    })
+  }
+
   onSubmitName(){
+    this.toastr.warning("Joining game...")
     this.playerName = this.player.firstLetterToUpper(this.nameForm.value.name);
     this.gameCreator = false;
     this.onJoinGame();
