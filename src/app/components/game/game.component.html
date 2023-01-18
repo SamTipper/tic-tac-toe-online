@@ -7,6 +7,14 @@
     <title>Playing Tic-Tac-Toe</title>
 </head>
 <body>
+    <div *ngIf="doneLoading" class="align-center">
+        <img 
+        (click)="copyGameToClipboard()"
+        class="clipboard-img" 
+        src="http://clipground.com/images/copy-4.png" 
+        title="Click to Copy">
+        <label (click)="copyGameToClipboard()">Copy Game ID</label>
+    </div>
 
     <div *ngIf="!playerName" class="center-box">
         <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">

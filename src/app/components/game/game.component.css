@@ -1,11 +1,9 @@
 body {
   font-family: "Arial", sans-serif;
 }
-
 section {
   text-align: center;
 }
-
 .game-container {
   display: grid;
   grid-template-columns: repeat(3, auto);
@@ -16,7 +14,6 @@ section {
   color: #04c0b2;
   margin-top: 15%;
 }
-
 .cell {
   font-family: "Permanent Marker", cursive;
   width: 100px;
@@ -79,4 +76,17 @@ section {
 }
 .hide-submit{
   display: none;
+}
+.align-center{
+  position: absolute;
+  top: 10%;
+  left: 47.5%;
+}
+.clipboard-img{
+  position: relative;
+  left: 20%;
+  display: block;
+  max-width: 50px;
+  cursor: pointer;
+  max-width: 50px;
 }

@@ -6,6 +6,7 @@ import { HttpService } from 'src/app/services/http.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
 import { ToastrService } from 'ngx-toastr';
+import { Clipboard } from '@angular/cdk/clipboard'
 
 @Component({
   selector: 'app-game',
@@ -43,7 +44,8 @@ export class GameComponent implements OnInit, OnDestroy {
               private http: HttpService,
               private player: PlayerService,
               private socket: SocketioService,
-              private toastr: ToastrService) {
+              private toastr: ToastrService,
+              private clipboard: Clipboard) {
 
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -264,6 +266,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onResign(){
     this.socket.announceResignation(this.gameCode);
+  }
+
+  copyGameToClipboard(){
+    this.clipboard.copy(`${this.playerName}is challenging you to a game of Tic-Tac-Toe! Accept the challenge here: ${location.href}`);
+    this.toastr.success("Game ID copied to clipboard!")
   }
 
 }
