@@ -21,6 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   players: Object = {};
   chat: string[] = [];
   nameForm: FormGroup;
+  chatForm: FormGroup;
   gameCode: string;
   gameCodeSubscriber: Subscription;
   gameDetails: Object;
@@ -28,11 +29,14 @@ export class GameComponent implements OnInit, OnDestroy {
   gameOver: boolean = false;
   doneLoading: boolean = false;
   opponentFound: boolean = false;
+  resigned: boolean = false;
   winner: string;
   rematchSubscription: Subscription;
   rematchRequested: boolean = false;
   listeningForRematch: boolean = false;
   opponentWantsRematch: boolean = false;
+  disableChat: boolean = false;
+  firstMoveTaken: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -47,7 +51,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(){
-    this.player.playerName = "Sam";
+    //this.player.playerName = "Sam";
     if (this.player.playerName !== undefined){
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -58,6 +62,10 @@ export class GameComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.chatForm = new FormGroup({
+      message: new FormControl(null, Validators.required)
+    });
+
     if (this.gameCode !== undefined){
       this.gameCodeSubscriber.unsubscribe();
     }
@@ -67,6 +75,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.dataEmitter.unsubscribe();
     this.socket.unlockGameEmitter.unsubscribe();
     this.socket.listenForRematchEmitter.unsubscribe();
+    this.socket.listenForMessages.unsubscribe();
+    this.socket.listenForResignation.unsubscribe();
   }
 
   connectToSocket(){
@@ -75,6 +85,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
 
     this.socket.dataEmitter.subscribe((val) => {
+      this.firstMoveTaken = true;
       this.gameDetails = val;
       this.loadBoard();
       this.players = JSON.parse(this.gameDetails['players']);
@@ -99,6 +110,8 @@ export class GameComponent implements OnInit, OnDestroy {
         }
       }
     })
+    this.listenForMessages();
+    this.listenForResignations();
     this.doneLoading = true;
     this.toastr.success("Game joined Successfully");
   }
@@ -108,7 +121,7 @@ export class GameComponent implements OnInit, OnDestroy {
       (res) => {
         if (res.status === 200){
           this.gameDetails = JSON.parse(res.body);
-  
+
             if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
               this.player.thisPlayersTurn = true;
             } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
@@ -116,6 +129,7 @@ export class GameComponent implements OnInit, OnDestroy {
             } else {
               this.player.thisPlayersTurn = false;
             }
+            this.chat = JSON.parse(this.gameDetails['chat']);
             this.loadBoard();
             this.connectToSocket();
         }
@@ -206,6 +220,8 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
         this.opponentName = this.player.opponentName;
         this.chat = [];
+        this.firstMoveTaken = false;
+        this.resigned = false;
         localStorage.setItem("rejoinCode", this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
         delete this.gameDetails['join_codes'];
         this.loadBoard();
@@ -220,6 +236,35 @@ export class GameComponent implements OnInit, OnDestroy {
     this.playerName = this.player.firstLetterToUpper(this.nameForm.value.name);
     this.gameCreator = false;
     this.onJoinGame();
+  }
+
+  listenForMessages(){
+    this.socket.listenForMessages.subscribe((val) => {
+      if (val['author'] !== this.playerName){
+        this.chat.push(val['message']);
+      }
+    })
+  }
+
+  listenForResignations(){
+    this.socket.listenForResignation.subscribe((val) => {
+      if (val['resign'] === true){
+        this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; this.resigned = true; // Make sure no more moves can happen
+        this.listenForRematch();
+      }
+    })
+  }
+
+  onSubmitMessage(){
+    this.disableChat = true;
+    this.socket.sendMessage(this.gameCode, this.chatForm.value.message, this.playerName);
+    this.chat.push(`${this.playerName}: ${this.chatForm.value.message}`);
+    this.chatForm.reset();
+    this.disableChat = false;
+  }
+
+  onResign(){
+    this.socket.announceResignation(this.gameCode);
   }
 
 }

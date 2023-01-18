@@ -9,6 +9,8 @@ export class SocketioService {
   dataEmitter = new EventEmitter<Object>();
   unlockGameEmitter = new EventEmitter<Object>();
   listenForRematchEmitter = new EventEmitter<Object>();
+  listenForMessages = new EventEmitter<Object>();
+  listenForResignation = new EventEmitter<Object>();
 
   constructor() { }
 
@@ -32,6 +34,14 @@ export class SocketioService {
     this.socket.emit('submit-data', {"room": gameCode, "data": data});
   }
 
+  sendMessage(gameCode: string, message: string, playerName: string){
+    this.socket.emit('send-message', {"room": gameCode, "message": `${playerName}: ${message}`, "playerName": playerName});
+  }
+
+  announceResignation(gameCode: string){
+    this.socket.emit('player-resigned', {"room": gameCode});
+  }
+
   activateListeners(){
     this.socket.addEventListener('message', ev => {
       this.dataEmitter.emit(JSON.parse(ev));
@@ -39,6 +49,14 @@ export class SocketioService {
 
     this.socket.addEventListener('unlock-game', ev => {
       this.unlockGameEmitter.emit(JSON.parse(ev));
+    })
+
+    this.socket.addEventListener('new-chat-message', ev => {
+      this.listenForMessages.emit(ev);
+    })
+
+    this.socket.addEventListener('player-resignation', ev => {
+      this.listenForResignation.emit(ev);
     })
   }
 

@@ -32,9 +32,14 @@
         <div *ngIf="playerName && doneLoading" class="chat-box">
             <h4>Chat</h4>
             <div class="chat-area">
-                <span *ngFor="let message of chat">{{ message }}</span>
+                <p *ngFor="let message of chat">{{ message }}</p>
             </div>
+            <form [formGroup]="chatForm" (ngSubmit)="onSubmitMessage()">
+                <input formControlName="message" class="chat-input" placeholder="Type a message in chat!">
+                <input [disabled]="disableChat || chatForm.invalid" type="submit" class="hide-submit">
+            </form>
             <button (click)="voteForRematch()" [disabled]="!gameOver || rematchRequested" class="btn btn-primary">Rematch</button>
+            <button (click)="onResign()" [disabled]="gameOver || !opponentName || !firstMoveTaken" class="btn btn-danger">Resign</button>
         </div>
         
         <div *ngIf="playerName && doneLoading" class="player-box">
@@ -50,7 +55,8 @@
     </div>
 
     <div *ngIf="gameOver">
-        <h1>{{ gameDetails['turn'] === 1 ? players['p2'] : players['p1'] }} Wins!</h1>
+        <h1 *ngIf="gameOver && !resigned">{{ gameDetails['turn'] === 1 ? players['p2'] : players['p1'] }} Wins!</h1>
+        <h1 *ngIf="gameOver && resigned">{{ gameDetails['turn'] === 1 ? players['p1'] : players['p2'] }} resigned, {{ gameDetails['turn'] === 1 ? players['p2'] : players['p1'] }} wins!</h1>
     </div>
 </body>
 </html>
