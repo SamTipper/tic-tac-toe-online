@@ -29,12 +29,14 @@ export class GameComponent implements OnInit, OnDestroy {
   gameOver: boolean = false;
   doneLoading: boolean = false;
   opponentFound: boolean = false;
+  resigned: boolean = false;
   winner: string;
   rematchSubscription: Subscription;
   rematchRequested: boolean = false;
   listeningForRematch: boolean = false;
   opponentWantsRematch: boolean = false;
   disableChat: boolean = false;
+  firstMoveTaken: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -74,6 +76,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.unlockGameEmitter.unsubscribe();
     this.socket.listenForRematchEmitter.unsubscribe();
     this.socket.listenForMessages.unsubscribe();
+    this.socket.listenForResignation.unsubscribe();
   }
 
   connectToSocket(){
@@ -82,6 +85,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
 
     this.socket.dataEmitter.subscribe((val) => {
+      this.firstMoveTaken = true;
       this.gameDetails = val;
       this.loadBoard();
       this.players = JSON.parse(this.gameDetails['players']);
@@ -107,6 +111,7 @@ export class GameComponent implements OnInit, OnDestroy {
       }
     })
     this.listenForMessages();
+    this.listenForResignations();
     this.doneLoading = true;
     this.toastr.success("Game joined Successfully");
   }
@@ -215,6 +220,8 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
         this.opponentName = this.player.opponentName;
         this.chat = [];
+        this.firstMoveTaken = false;
+        this.resigned = false;
         localStorage.setItem("rejoinCode", this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
         delete this.gameDetails['join_codes'];
         this.loadBoard();
@@ -239,6 +246,15 @@ export class GameComponent implements OnInit, OnDestroy {
     })
   }
 
+  listenForResignations(){
+    this.socket.listenForResignation.subscribe((val) => {
+      if (val['resign'] === true){
+        this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; this.resigned = true; // Make sure no more moves can happen
+        this.listenForRematch();
+      }
+    })
+  }
+
   onSubmitMessage(){
     this.disableChat = true;
     this.socket.sendMessage(this.gameCode, this.chatForm.value.message, this.playerName);
@@ -247,5 +263,8 @@ export class GameComponent implements OnInit, OnDestroy {
     this.disableChat = false;
   }
 
+  onResign(){
+    this.socket.announceResignation(this.gameCode);
+  }
 
 }
