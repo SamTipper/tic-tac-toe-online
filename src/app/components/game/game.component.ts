@@ -6,6 +6,7 @@ import { HttpService } from 'src/app/services/http.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
 import { ToastrService } from 'ngx-toastr';
+import { Clipboard } from '@angular/cdk/clipboard'
 
 @Component({
   selector: 'app-game',
@@ -30,20 +31,23 @@ export class GameComponent implements OnInit, OnDestroy {
   doneLoading: boolean = false;
   opponentFound: boolean = false;
   resigned: boolean = false;
+  pressedResign: boolean = false;
+  draw: boolean = false;
   winner: string;
   rematchSubscription: Subscription;
   rematchRequested: boolean = false;
   listeningForRematch: boolean = false;
   opponentWantsRematch: boolean = false;
   disableChat: boolean = false;
-  firstMoveTaken: boolean = false;
+  moveCounter: number = 0;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private http: HttpService,
               private player: PlayerService,
               private socket: SocketioService,
-              private toastr: ToastrService) {
+              private toastr: ToastrService,
+              private clipboard: Clipboard) {
 
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -51,7 +55,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(){
-    this.player.playerName = "Sam";
+    this.player.playerName = "";
     if (this.player.playerName !== undefined){
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -85,17 +89,18 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
 
     this.socket.dataEmitter.subscribe((val) => {
-      this.firstMoveTaken = true;
+      this.moveCounter++;
       this.gameDetails = val;
       this.loadBoard();
       this.players = JSON.parse(this.gameDetails['players']);
       this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
       this.opponentName = this.player.opponentName;
-      if (this.gameDetails['game_over'] === false){
+      if (this.gameDetails['game_over'] === "continue"){
         this.swapTurns();
       } else {
         this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
         localStorage.removeItem("rejoinCode");
+        this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
         this.listenForRematch();
       }
     })
@@ -220,8 +225,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
         this.opponentName = this.player.opponentName;
         this.chat = [];
-        this.firstMoveTaken = false;
+        this.moveCounter = 0;
         this.resigned = false;
+        this.pressedResign = false;
+        this.draw = false;
         localStorage.setItem("rejoinCode", this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
         delete this.gameDetails['join_codes'];
         this.loadBoard();
@@ -264,7 +271,13 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   onResign(){
+    this.pressedResign = true;
     this.socket.announceResignation(this.gameCode);
+  }
+
+  copyGameToClipboard(){
+    this.clipboard.copy(location.href);
+    this.toastr.success("Game ID copied to clipboard!")
   }
 
 }
