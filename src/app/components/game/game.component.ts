@@ -31,13 +31,15 @@ export class GameComponent implements OnInit, OnDestroy {
   doneLoading: boolean = false;
   opponentFound: boolean = false;
   resigned: boolean = false;
+  pressedResign: boolean = false;
+  draw: boolean = false;
   winner: string;
   rematchSubscription: Subscription;
   rematchRequested: boolean = false;
   listeningForRematch: boolean = false;
   opponentWantsRematch: boolean = false;
   disableChat: boolean = false;
-  firstMoveTaken: boolean = false;
+  moveCounter: number = 0;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -86,17 +88,18 @@ export class GameComponent implements OnInit, OnDestroy {
     this.socket.joinRoom(this.gameCode, this.player.playerNumber, this.playerName);
 
     this.socket.dataEmitter.subscribe((val) => {
-      this.firstMoveTaken = true;
+      this.moveCounter++;
       this.gameDetails = val;
       this.loadBoard();
       this.players = JSON.parse(this.gameDetails['players']);
       this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
       this.opponentName = this.player.opponentName;
-      if (this.gameDetails['game_over'] === false){
+      if (this.gameDetails['game_over'] === "continue"){
         this.swapTurns();
       } else {
         this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
         localStorage.removeItem("rejoinCode");
+        this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
         this.listenForRematch();
       }
     })
@@ -221,8 +224,10 @@ export class GameComponent implements OnInit, OnDestroy {
         this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
         this.opponentName = this.player.opponentName;
         this.chat = [];
-        this.firstMoveTaken = false;
+        this.moveCounter = 0;
         this.resigned = false;
+        this.pressedResign = false;
+        this.draw = false;
         localStorage.setItem("rejoinCode", this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
         delete this.gameDetails['join_codes'];
         this.loadBoard();
@@ -265,11 +270,12 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   onResign(){
+    this.pressedResign = true;
     this.socket.announceResignation(this.gameCode);
   }
 
   copyGameToClipboard(){
-    this.clipboard.copy(`${this.playerName}is challenging you to a game of Tic-Tac-Toe! Accept the challenge here: ${location.href}`);
+    this.clipboard.copy(location.href);
     this.toastr.success("Game ID copied to clipboard!")
   }
 
