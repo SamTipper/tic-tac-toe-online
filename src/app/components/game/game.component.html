@@ -18,16 +18,11 @@
     </div>
 
     <div *ngIf="!playerName" class="center-box">
-      <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
-        <input placeholder="Enter your name" formControlName="name" />
-        <button
-          class="btn btn-primary"
-          [disabled]="!nameForm.valid"
-          type="submit"
-        >
-          Play!
-        </button>
-      </form>
+        <h1>Join a Game</h1>
+        <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
+            <input placeholder="Enter your name" formControlName="name">
+            <button class="btn btn-primary" [disabled]="!nameForm.valid" type="submit">Play!</button>
+        </form>
     </div>
 
     <section *ngIf="playerName && doneLoading">
