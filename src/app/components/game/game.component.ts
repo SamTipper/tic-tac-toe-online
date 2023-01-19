@@ -56,7 +56,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.player.playerName = 'Pizza';
     if (this.player.playerName !== undefined) {
       this.playerName = this.player.playerName;
       this.gameCreator = true;
