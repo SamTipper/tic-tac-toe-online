@@ -99,7 +99,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.swapTurns();
       } else {
         this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
-        localStorage.removeItem("rejoinCode");
         this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
         this.listenForRematch();
       }
@@ -117,6 +116,11 @@ export class GameComponent implements OnInit, OnDestroy {
     })
     this.listenForMessages();
     this.listenForResignations();
+    if (this.gameDetails['game_over'] === true){
+      this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
+      this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
+      this.listenForRematch();
+    } 
     this.doneLoading = true;
     this.toastr.success("Game joined Successfully");
   }
@@ -126,17 +130,19 @@ export class GameComponent implements OnInit, OnDestroy {
       (res) => {
         if (res.status === 200){
           this.gameDetails = JSON.parse(res.body);
+          console.log(this.gameDetails['game_over']);
+          if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
+            this.player.thisPlayersTurn = true;
+          } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
+            this.player.thisPlayersTurn = true;
+          } else {
+            this.player.thisPlayersTurn = false;
+          }
+          this.chat = JSON.parse(this.gameDetails['chat']);
+          this.loadBoard();
+          this.connectToSocket();
 
-            if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
-              this.player.thisPlayersTurn = true;
-            } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
-              this.player.thisPlayersTurn = true;
-            } else {
-              this.player.thisPlayersTurn = false;
-            }
-            this.chat = JSON.parse(this.gameDetails['chat']);
-            this.loadBoard();
-            this.connectToSocket();
+            
         }
       },
       (error) => {
