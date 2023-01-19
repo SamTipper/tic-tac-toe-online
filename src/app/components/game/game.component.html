@@ -1,71 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Playing Tic-Tac-Toe</title>
-</head>
-<body>
+  </head>
+  <body>
     <div *ngIf="doneLoading" class="align-center">
-        <img 
+      <img
         (click)="copyGameToClipboard()"
-        class="clipboard-img" 
-        src="http://clipground.com/images/copy-4.png" 
-        title="Click to Copy">
-        <label (click)="copyGameToClipboard()">Copy Game ID</label>
+        class="clipboard-img"
+        src="http://clipground.com/images/copy-4.png"
+        title="Click to Copy"
+      />
+      <label (click)="copyGameToClipboard()">Copy Game ID</label>
     </div>
 
     <div *ngIf="!playerName" class="center-box">
-        <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
-            <input placeholder="Enter your name" formControlName="name">
-            <button class="btn btn-primary" [disabled]="!nameForm.valid" type="submit">Play!</button>
-        </form>
+      <form [formGroup]="nameForm" (ngSubmit)="onSubmitName()">
+        <input placeholder="Enter your name" formControlName="name" />
+        <button
+          class="btn btn-primary"
+          [disabled]="!nameForm.valid"
+          type="submit"
+        >
+          Play!
+        </button>
+      </form>
     </div>
 
-
     <section *ngIf="playerName && doneLoading">
-        <div class="game-container">
-            <div [innerHTML]="board[0][0]" (click)="placePiece($event, 0, 0)" class="cell"></div>
-            <div [innerHTML]="board[0][1]" (click)="placePiece($event, 0, 1)" class="cell"></div>
-            <div [innerHTML]="board[0][2]" (click)="placePiece($event, 0, 2)" class="cell"></div>
-            <div [innerHTML]="board[1][0]" (click)="placePiece($event, 1, 0)" class="cell"></div>
-            <div [innerHTML]="board[1][1]" (click)="placePiece($event, 1, 1)" class="cell"></div>
-            <div [innerHTML]="board[1][2]" (click)="placePiece($event, 1, 2)" class="cell"></div>
-            <div [innerHTML]="board[2][0]" (click)="placePiece($event, 2, 0)" class="cell"></div>
-            <div [innerHTML]="board[2][1]" (click)="placePiece($event, 2, 1)" class="cell"></div>
-            <div [innerHTML]="board[2][2]" (click)="placePiece($event, 2, 2)" class="cell"></div>
-        </div>
+      <div class="game-container">
+        <div
+          [innerHTML]="board[0][0]"
+          (click)="placePiece($event, 0, 0)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[0][1]"
+          (click)="placePiece($event, 0, 1)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[0][2]"
+          (click)="placePiece($event, 0, 2)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[1][0]"
+          (click)="placePiece($event, 1, 0)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[1][1]"
+          (click)="placePiece($event, 1, 1)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[1][2]"
+          (click)="placePiece($event, 1, 2)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[2][0]"
+          (click)="placePiece($event, 2, 0)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[2][1]"
+          (click)="placePiece($event, 2, 1)"
+          class="cell"
+        ></div>
+        <div
+          [innerHTML]="board[2][2]"
+          (click)="placePiece($event, 2, 2)"
+          class="cell"
+        ></div>
+      </div>
 
-        <div *ngIf="playerName && doneLoading" class="chat-box">
-            <h4>Chat</h4>
-            <div class="chat-area">
-                <p *ngFor="let message of chat">{{ message }}</p>
-            </div>
-            <form [formGroup]="chatForm" (ngSubmit)="onSubmitMessage()">
-                <input formControlName="message" class="chat-input" placeholder="Type a message in chat!">
-                <input [disabled]="disableChat || chatForm.invalid" type="submit" class="hide-submit">
-            </form>
-            <button (click)="voteForRematch()" [disabled]="!gameOver || rematchRequested" class="btn btn-primary">Rematch</button>
-            <button (click)="onResign()" [disabled]="gameOver || !opponentName || moveCounter<3" class="btn btn-danger">Resign</button>
+      <div *ngIf="playerName && doneLoading" class="chat-box">
+        <h4>Chat</h4>
+        <div class="chat-area">
+          <p *ngFor="let message of chat">{{ message }}</p>
         </div>
-        
-        <div *ngIf="playerName && doneLoading" class="player-box">
-            <h3 [ngStyle]="{color: gameDetails['turn'] === playerNumber && opponentName && !gameOver ? 'green' : 'black'}">{{ playerName }}</h3>
-            <h3 [ngStyle]="{color: gameDetails['turn'] !== playerNumber && opponentName && !gameOver ? 'green' : 'black'}" *ngIf="opponentName">{{ opponentName }}</h3>
-        </div>
+        <form [formGroup]="chatForm" (ngSubmit)="onSubmitMessage()">
+          <input
+            formControlName="message"
+            class="chat-input"
+            placeholder="Type a message in chat!"
+          />
+          <input
+            [disabled]="disableChat || chatForm.invalid"
+            type="submit"
+            class="hide-submit"
+          />
+        </form>
+        <button
+          (click)="voteForRematch()"
+          [disabled]="!gameOver || rematchRequested"
+          class="btn btn-primary"
+        >
+          Rematch
+        </button>
+        <button
+          (click)="onResign()"
+          [disabled]="gameOver || !opponentName || moveCounter < 3"
+          class="btn btn-danger"
+        >
+          Resign
+        </button>
+      </div>
+
+      <div *ngIf="playerName && doneLoading" class="player-box">
+        <h3
+          [ngStyle]="{
+            color:
+              gameDetails['turn'] === playerNumber && opponentName && !gameOver
+                ? 'green'
+                : 'black'
+          }"
+        >
+          {{ playerName }}
+        </h3>
+        <h3
+          [ngStyle]="{
+            color:
+              gameDetails['turn'] !== playerNumber && opponentName && !gameOver
+                ? 'green'
+                : 'black'
+          }"
+          *ngIf="opponentName"
+        >
+          {{ opponentName }}
+        </h3>
+      </div>
     </section>
 
-    
-
     <div *ngIf="playerName && !opponentName && doneLoading">
-        <h1>Waiting for opponent...</h1>
+      <h1>Waiting for opponent...</h1>
     </div>
 
     <div *ngIf="gameOver">
-        <h1 *ngIf="gameOver && !resigned && !draw">{{ gameDetails['turn'] === 1 ? players['p2'] : players['p1'] }} Wins!</h1>
-        <h1 *ngIf="gameOver && !resigned && draw">Draw!</h1>
-        <h1 *ngIf="gameOver && resigned && !draw">{{ pressedResign ? playerName : opponentName }} resigned, {{ pressedResign ? opponentName : playerName }} wins!</h1>
+      <h1 *ngIf="gameOver && !resigned && !draw">
+        {{ gameDetails["turn"] === 1 ? players["p2"] : players["p1"] }} Wins!
+      </h1>
+      <h1 *ngIf="gameOver && !resigned && draw">Draw!</h1>
+      <h1 *ngIf="gameOver && resigned && !draw">
+        {{ pressedResign ? playerName : opponentName }} resigned,
+        {{ pressedResign ? opponentName : playerName }} wins!
+      </h1>
     </div>
-</body>
+  </body>
 </html>
