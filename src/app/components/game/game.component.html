@@ -27,15 +27,15 @@
 
     <section *ngIf="playerName && doneLoading">
         <div class="game-container">
-            <div [innerHTML]="board[0][0]" (click)="placePiece($event, 0, 0)" class="cell"></div>
-            <div [innerHTML]="board[0][1]" (click)="placePiece($event, 0, 1)" class="cell"></div>
-            <div [innerHTML]="board[0][2]" (click)="placePiece($event, 0, 2)" class="cell"></div>
-            <div [innerHTML]="board[1][0]" (click)="placePiece($event, 1, 0)" class="cell"></div>
-            <div [innerHTML]="board[1][1]" (click)="placePiece($event, 1, 1)" class="cell"></div>
-            <div [innerHTML]="board[1][2]" (click)="placePiece($event, 1, 2)" class="cell"></div>
-            <div [innerHTML]="board[2][0]" (click)="placePiece($event, 2, 0)" class="cell"></div>
-            <div [innerHTML]="board[2][1]" (click)="placePiece($event, 2, 1)" class="cell"></div>
-            <div [innerHTML]="board[2][2]" (click)="placePiece($event, 2, 2)" class="cell"></div>
+            <div #square1 [innerHTML]="board[0][0] | pieceColor: square1" (click)="placePiece($event, 0, 0)" class="cell"></div>
+            <div #square2 [innerHTML]="board[0][1] | pieceColor: square2" (click)="placePiece($event, 0, 1)" class="cell"></div>
+            <div #square3 [innerHTML]="board[0][2] | pieceColor: square3" (click)="placePiece($event, 0, 2)" class="cell"></div>
+            <div #square4 [innerHTML]="board[1][0] | pieceColor: square4" (click)="placePiece($event, 1, 0)" class="cell"></div>
+            <div #square5 [innerHTML]="board[1][1] | pieceColor: square5" (click)="placePiece($event, 1, 1)" class="cell"></div>
+            <div #square6 [innerHTML]="board[1][2] | pieceColor: square6" (click)="placePiece($event, 1, 2)" class="cell"></div>
+            <div #square7 [innerHTML]="board[2][0] | pieceColor: square7" (click)="placePiece($event, 2, 0)" class="cell"></div>
+            <div #square8 [innerHTML]="board[2][1] | pieceColor: square8" (click)="placePiece($event, 2, 1)" class="cell"></div>
+            <div #square9 [innerHTML]="board[2][2] | pieceColor: square9" (click)="placePiece($event, 2, 2)" class="cell"></div>
         </div>
 
         <div *ngIf="playerName && doneLoading" class="chat-box">
@@ -56,8 +56,6 @@
             <h3 [ngStyle]="{color: gameDetails['turn'] !== playerNumber && opponentName && !gameOver ? 'green' : 'black'}" *ngIf="opponentName">{{ opponentName }}</h3>
         </div>
     </section>
-
-    
 
     <div *ngIf="playerName && !opponentName && doneLoading">
         <h1>Waiting for opponent...</h1>

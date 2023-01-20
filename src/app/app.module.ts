@@ -10,12 +10,14 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { GameComponent } from './components/game/game.component';
+import { PieceColorPipe } from './pipes/piece-color.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    GameComponent
+    GameComponent,
+    PieceColorPipe
   ],
   imports: [
     BrowserModule,

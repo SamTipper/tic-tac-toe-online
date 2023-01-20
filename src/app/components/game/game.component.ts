@@ -215,15 +215,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placePiece(event, x, y) {
-    if (
-      event.srcElement.innerHTML.trim() === '' &&
-      this.player.thisPlayersTurn === true &&
-      this.opponentFound == true
-    ) {
-      this.player.playerNumber === 1
-        ? (event.srcElement.innerHTML = 'X')
-        : (event.srcElement.innerHTML = 'O');
+    if ( event.srcElement.innerHTML.trim() === '' && this.player.thisPlayersTurn === true && this.opponentFound == true) {
+      this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
+      console.log(event);
+      event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
       const serverData = JSON.stringify({
         game: this.gameCode,
         turn: this.player.playerNumber,
