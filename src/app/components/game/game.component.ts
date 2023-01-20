@@ -127,7 +127,8 @@ export class GameComponent implements OnInit, OnDestroy {
     });
     this.listenForMessages();
     this.listenForResignations();
-    if (this.gameDetails['game_over'] === true){
+    console.log(this.gameDetails['game_over']);
+    if (this.gameDetails['game_over'] === 'win' || this.gameDetails['game_over'] === 'draw'){
       this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
       this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
       this.listenForRematch();
