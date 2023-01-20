@@ -56,7 +56,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.player.playerName = 'Pizza';
     if (this.player.playerName !== undefined) {
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -216,15 +215,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placePiece(event, x, y) {
-    if (
-      event.srcElement.innerHTML.trim() === '' &&
-      this.player.thisPlayersTurn === true &&
-      this.opponentFound == true
-    ) {
-      this.player.playerNumber === 1
-        ? (event.srcElement.innerHTML = 'X')
-        : (event.srcElement.innerHTML = 'O');
+    if ( event.srcElement.innerHTML.trim() === '' && this.player.thisPlayersTurn === true && this.opponentFound == true) {
+      this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
+      console.log(event);
+      event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
       const serverData = JSON.stringify({
         game: this.gameCode,
         turn: this.player.playerNumber,
@@ -273,7 +268,6 @@ export class GameComponent implements OnInit, OnDestroy {
               ? this.players['p2']
               : this.players['p1'];
           this.opponentName = this.player.opponentName;
-          this.chat = [];
           this.moveCounter = 0;
           this.resigned = false;
           this.pressedResign = false;
