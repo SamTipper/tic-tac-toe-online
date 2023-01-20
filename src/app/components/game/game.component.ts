@@ -272,7 +272,6 @@ export class GameComponent implements OnInit, OnDestroy {
               ? this.players['p2']
               : this.players['p1'];
           this.opponentName = this.player.opponentName;
-          this.chat = [];
           this.moveCounter = 0;
           this.resigned = false;
           this.pressedResign = false;
