@@ -39,8 +39,8 @@ section {
 }
 .chat-box {
   max-width: 50%;
-  max-height: 26%;
-  height: 250px;
+  max-height: 30%;
+  height: 290px;
   width: 25vw;
   position: absolute;
   display: inline;
@@ -60,7 +60,11 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  
 }
+
+
+
 .chat-area p {
   word-wrap: break-word 3%;
   text-align: left;
@@ -74,7 +78,16 @@ section {
   text-indent: 0%;
   width: 91%;
   margin-top: 3px;
+  transition: background-color 0.5s;
+
 }
+
+.chat-input:hover{
+  background-color: #0cefff70;
+  color: black;
+}
+
+
 .hide-submit {
   display: none;
 }

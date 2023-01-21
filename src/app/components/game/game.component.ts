@@ -56,6 +56,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.player.playerName = 'pizza';
     if (this.player.playerName !== undefined) {
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -108,8 +109,10 @@ export class GameComponent implements OnInit, OnDestroy {
       if (this.gameDetails['game_over'] === 'continue') {
         this.swapTurns();
       } else {
-        this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
-        this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
+        this.player.thisPlayersTurn = false;
+        this.gameOver = true;
+        this.opponentFound = false; // Make sure no more moves can happen
+        this.draw = this.gameDetails['game_over'] === 'draw' ? true : false;
         this.listenForRematch();
       }
     });
@@ -128,11 +131,16 @@ export class GameComponent implements OnInit, OnDestroy {
     this.listenForMessages();
     this.listenForResignations();
     console.log(this.gameDetails['game_over']);
-    if (this.gameDetails['game_over'] === 'win' || this.gameDetails['game_over'] === 'draw'){
-      this.player.thisPlayersTurn = false; this.gameOver = true; this.opponentFound = false; // Make sure no more moves can happen
-      this.draw = this.gameDetails['game_over'] === "draw" ? true : false;
+    if (
+      this.gameDetails['game_over'] === 'win' ||
+      this.gameDetails['game_over'] === 'draw'
+    ) {
+      this.player.thisPlayersTurn = false;
+      this.gameOver = true;
+      this.opponentFound = false; // Make sure no more moves can happen
+      this.draw = this.gameDetails['game_over'] === 'draw' ? true : false;
       this.listenForRematch();
-    } 
+    }
     this.doneLoading = true;
     this.toastr.success('Game joined Successfully');
   }
@@ -143,9 +151,15 @@ export class GameComponent implements OnInit, OnDestroy {
         if (res.status === 200) {
           this.gameDetails = JSON.parse(res.body);
           console.log(this.gameDetails['game_over']);
-          if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1){
+          if (
+            this.gameDetails['turn'] === 1 &&
+            this.player.playerNumber === 1
+          ) {
             this.player.thisPlayersTurn = true;
-          } else if (this.gameDetails['turn'] === 2 && this.player.playerNumber === 2){
+          } else if (
+            this.gameDetails['turn'] === 2 &&
+            this.player.playerNumber === 2
+          ) {
             this.player.thisPlayersTurn = true;
           } else {
             this.player.thisPlayersTurn = false;
@@ -153,8 +167,6 @@ export class GameComponent implements OnInit, OnDestroy {
           this.chat = JSON.parse(this.gameDetails['chat']);
           this.loadBoard();
           this.connectToSocket();
-
-            
         }
       },
       (error) => {
@@ -216,11 +228,18 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placePiece(event, x, y) {
-    if ( event.srcElement.innerHTML.trim() === '' && this.player.thisPlayersTurn === true && this.opponentFound == true) {
-      this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
+    if (
+      event.srcElement.innerHTML.trim() === '' &&
+      this.player.thisPlayersTurn === true &&
+      this.opponentFound == true
+    ) {
+      this.player.playerNumber === 1
+        ? (event.srcElement.innerHTML = 'X')
+        : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
       console.log(event);
-      event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
+      event.srcElement.style.color =
+        event.srcElement.innerHTML === 'X' ? 'lightblue' : 'orange';
       const serverData = JSON.stringify({
         game: this.gameCode,
         turn: this.player.playerNumber,
