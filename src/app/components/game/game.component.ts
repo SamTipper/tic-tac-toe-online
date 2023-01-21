@@ -7,7 +7,6 @@ import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
 import { ToastrService } from 'ngx-toastr';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ShowPiecePipe } from 'src/app/pipes/show-piece.pipe';
 
 @Component({
   selector: 'app-game',
@@ -19,6 +18,8 @@ export class GameComponent implements OnInit, OnDestroy {
   playerName: string;
   opponentName: string;
   playerNumber: number;
+  playerPiece: string;
+  opponentPiece: string;
   gameCreator: boolean;
   players: Object = {};
   chat: string[] = [];
@@ -49,8 +50,7 @@ export class GameComponent implements OnInit, OnDestroy {
     private player: PlayerService,
     private socket: SocketioService,
     private toastr: ToastrService,
-    private clipboard: Clipboard,
-    private showPiece: ShowPiecePipe
+    private clipboard: Clipboard
   ) {
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -179,7 +179,8 @@ export class GameComponent implements OnInit, OnDestroy {
             localStorage.setItem('rejoinCode', data['rejoin_code']);
             this.player.playerNumber = data['player_num'];
             this.playerNumber = this.player.playerNumber;
-            // ADD FUNCTIONALITY FOR PLAYER PIECE HERE
+            this.player.playerPiece = this.player.playerNumber === 1 ? "X" : "O"; this.player.opponentPiece = this.player.playerNumber === 1 ? "O" : "X";
+            this.playerPiece = this.player.playerPiece; this.opponentPiece = this.player.opponentPiece;
             this.getRoomDetails();
           }
         },
@@ -272,6 +273,9 @@ export class GameComponent implements OnInit, OnDestroy {
               : this.players['p1'];
           this.opponentName = this.player.opponentName;
           this.moveCounter = 0;
+          this.player.playerPiece = this.player.playerPiece === "X" ? "O" : "X";
+          this.player.opponentPiece = this.player.opponentPiece === "X" ? "O" : "X";
+          this.playerPiece = this.player.playerPiece; this.opponentPiece =  this.player.opponentPiece;
           this.resigned = false;
           this.pressedResign = false;
           this.draw = false;

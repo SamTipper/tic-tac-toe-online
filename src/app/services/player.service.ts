@@ -9,6 +9,8 @@ export class PlayerService {
   opponentName: string;
   playerNumber: number;
   thisPlayersTurn: boolean;
+  playerPiece: string;
+  opponentPiece: string;
 
   constructor(private http: HttpService) { }
 

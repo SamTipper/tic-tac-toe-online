@@ -11,15 +11,13 @@ import { HomeComponent } from './components/home/home.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { GameComponent } from './components/game/game.component';
 import { PieceColorPipe } from './pipes/piece-color.pipe';
-import { ShowPiecePipe } from './pipes/show-piece.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     GameComponent,
-    PieceColorPipe,
-    ShowPiecePipe
+    PieceColorPipe
   ],
   imports: [
     BrowserModule,
@@ -30,7 +28,7 @@ import { ShowPiecePipe } from './pipes/show-piece.pipe';
     ToastrModule.forRoot(),
     ClipboardModule
   ],
-  providers: [ShowPiecePipe],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
