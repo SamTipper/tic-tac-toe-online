@@ -18,6 +18,8 @@ export class GameComponent implements OnInit, OnDestroy {
   playerName: string;
   opponentName: string;
   playerNumber: number;
+  playerPiece: string;
+  opponentPiece: string;
   gameCreator: boolean;
   players: Object = {};
   chat: string[] = [];
@@ -189,6 +191,8 @@ export class GameComponent implements OnInit, OnDestroy {
             localStorage.setItem('rejoinCode', data['rejoin_code']);
             this.player.playerNumber = data['player_num'];
             this.playerNumber = this.player.playerNumber;
+            this.player.playerPiece = this.player.playerNumber === 1 ? "X" : "O"; this.player.opponentPiece = this.player.playerNumber === 1 ? "O" : "X";
+            this.playerPiece = this.player.playerPiece; this.opponentPiece = this.player.opponentPiece;
             this.getRoomDetails();
           }
         },
@@ -238,8 +242,7 @@ export class GameComponent implements OnInit, OnDestroy {
         : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
       console.log(event);
-      event.srcElement.style.color =
-        event.srcElement.innerHTML === 'X' ? 'lightblue' : 'orange';
+      event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
       const serverData = JSON.stringify({
         game: this.gameCode,
         turn: this.player.playerNumber,
@@ -289,6 +292,9 @@ export class GameComponent implements OnInit, OnDestroy {
               : this.players['p1'];
           this.opponentName = this.player.opponentName;
           this.moveCounter = 0;
+          this.player.playerPiece = this.player.playerPiece === "X" ? "O" : "X";
+          this.player.opponentPiece = this.player.opponentPiece === "X" ? "O" : "X";
+          this.playerPiece = this.player.playerPiece; this.opponentPiece =  this.player.opponentPiece;
           this.resigned = false;
           this.pressedResign = false;
           this.draw = false;

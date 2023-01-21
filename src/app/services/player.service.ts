@@ -9,6 +9,8 @@ export class PlayerService {
   opponentName: string;
   playerNumber: number;
   thisPlayersTurn: boolean;
+  playerPiece: string;
+  opponentPiece: string;
 
   constructor(private http: HttpService) { }
 
@@ -18,6 +20,7 @@ export class PlayerService {
     splitName.forEach(word => {
       this.playerName += `${word.charAt(0).toUpperCase() + word.substring(1)} `;
     })
+    
 
     return this.playerName;
   }
