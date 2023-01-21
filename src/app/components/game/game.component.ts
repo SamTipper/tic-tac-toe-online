@@ -7,6 +7,7 @@ import { PlayerService } from 'src/app/services/player.service';
 import { SocketioService } from 'src/app/services/socketio.service';
 import { ToastrService } from 'ngx-toastr';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { ShowPiecePipe } from 'src/app/pipes/show-piece.pipe';
 
 @Component({
   selector: 'app-game',
@@ -48,7 +49,8 @@ export class GameComponent implements OnInit, OnDestroy {
     private player: PlayerService,
     private socket: SocketioService,
     private toastr: ToastrService,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private showPiece: ShowPiecePipe
   ) {
     this.gameCodeSubscriber = this.route.params.subscribe((params) => {
       this.gameCode = params['id'];
@@ -177,6 +179,7 @@ export class GameComponent implements OnInit, OnDestroy {
             localStorage.setItem('rejoinCode', data['rejoin_code']);
             this.player.playerNumber = data['player_num'];
             this.playerNumber = this.player.playerNumber;
+            // ADD FUNCTIONALITY FOR PLAYER PIECE HERE
             this.getRoomDetails();
           }
         },
@@ -219,7 +222,6 @@ export class GameComponent implements OnInit, OnDestroy {
     if ( event.srcElement.innerHTML.trim() === '' && this.player.thisPlayersTurn === true && this.opponentFound == true) {
       this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
-      console.log(event);
       event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
       const serverData = JSON.stringify({
         game: this.gameCode,
