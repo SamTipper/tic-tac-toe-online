@@ -18,6 +18,7 @@ export class PlayerService {
     splitName.forEach(word => {
       this.playerName += `${word.charAt(0).toUpperCase() + word.substring(1)} `;
     })
+    
 
     return this.playerName;
   }
