@@ -57,6 +57,12 @@
         </div>
     </section>
 
+    <div class="chat-area" *ngFor="let move of moves; let i = index">
+        <span *ngIf="moves.length === 1">{{ move }}</span>
+        <span *ngIf="i % 2 === 0">{{ moves[i-1] }} {{ moves[i] }}</span>
+        <span *ngIf="moves.length > 1 && moves.length === i && i % 2 !== 0">{{ move }}</span>
+    </div>
+
     <div *ngIf="playerName && !opponentName && doneLoading">
         <h1>Waiting for opponent...</h1>
     </div>

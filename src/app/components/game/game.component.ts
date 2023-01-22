@@ -29,6 +29,7 @@ export class GameComponent implements OnInit, OnDestroy {
   gameCodeSubscriber: Subscription;
   gameDetails: Object;
   board = [[], [], []];
+  moves: string[] = [];
   gameOver: boolean = false;
   doneLoading: boolean = false;
   opponentFound: boolean = false;
@@ -107,6 +108,8 @@ export class GameComponent implements OnInit, OnDestroy {
           ? this.players['p2']
           : this.players['p1'];
       this.opponentName = this.player.opponentName;
+      console.log(this.gameDetails['moves']);
+      this.moves = JSON.parse(this.gameDetails['moves']);
       if (this.gameDetails['game_over'] === 'continue') {
         this.swapTurns();
       } else {
@@ -153,6 +156,7 @@ export class GameComponent implements OnInit, OnDestroy {
             this.player.thisPlayersTurn = false;
           }
           this.chat = JSON.parse(this.gameDetails['chat']);
+          this.moves = JSON.parse(this.gameDetails['moves']);
           this.loadBoard();
           this.connectToSocket();
 
@@ -224,6 +228,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
       event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
+      this.moves.push(`${x} ${y}`);
       const serverData = JSON.stringify({
         game: this.gameCode,
         turn: this.player.playerNumber,
