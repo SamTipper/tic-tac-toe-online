@@ -65,10 +65,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.onJoinGame();
     } else {
       this.nameForm = new FormGroup({
-        name: new FormControl(null, [
-          Validators.required,
-          Validators.maxLength(10),
-        ]),
+        name: new FormControl(null, [ Validators.required, Validators.maxLength(10)]),
       });
     }
 
@@ -103,12 +100,8 @@ export class GameComponent implements OnInit, OnDestroy {
       this.gameDetails = val;
       this.loadBoard();
       this.players = JSON.parse(this.gameDetails['players']);
-      this.player.opponentName =
-        this.player.playerNumber === 1
-          ? this.players['p2']
-          : this.players['p1'];
+      this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
       this.opponentName = this.player.opponentName;
-      console.log(this.gameDetails['moves']);
       this.moves = JSON.parse(this.gameDetails['moves']);
       if (this.gameDetails['game_over'] === 'continue') {
         this.swapTurns();
@@ -134,11 +127,7 @@ export class GameComponent implements OnInit, OnDestroy {
     });
     this.listenForMessages();
     this.listenForResignations();
-    console.log(this.gameDetails['game_over']);
-    if (
-      this.gameDetails['game_over'] === 'win' ||
-      this.gameDetails['game_over'] === 'draw'
-    ) {
+    if (this.gameDetails['game_over'] === 'win' || this.gameDetails['game_over'] === 'draw') {
       this.player.thisPlayersTurn = false;
       this.gameOver = true;
       this.opponentFound = false; // Make sure no more moves can happen
@@ -154,16 +143,9 @@ export class GameComponent implements OnInit, OnDestroy {
       (res) => {
         if (res.status === 200) {
           this.gameDetails = JSON.parse(res.body);
-          console.log(this.gameDetails['game_over']);
-          if (
-            this.gameDetails['turn'] === 1 &&
-            this.player.playerNumber === 1
-          ) {
+          if ( this.gameDetails['turn'] === 1 && this.player.playerNumber === 1) {
             this.player.thisPlayersTurn = true;
-          } else if (
-            this.gameDetails['turn'] === 2 &&
-            this.player.playerNumber === 2
-          ) {
+          } else if ( this.gameDetails['turn'] === 2 && this.player.playerNumber === 2) {
             this.player.thisPlayersTurn = true;
           } else {
             this.player.thisPlayersTurn = false;
@@ -177,17 +159,14 @@ export class GameComponent implements OnInit, OnDestroy {
       (error) => {
         console.log(error);
         this.router.navigate(['/']);
-        this.toastr.error(
-          'An error occurred whilst fetching room details, please try again'
-        );
+        this.toastr.error('An error occurred whilst fetching room details, please try again');
       }
     );
   }
 
   onJoinGame() {
     this.http
-      .JoinGame(this.gameCode, this.playerName, this.gameCreator.toString())
-      .subscribe(
+      .JoinGame(this.gameCode, this.playerName, this.gameCreator.toString()).subscribe(
         (res) => {
           if (res.status === 200) {
             const data: Object = JSON.parse(res.body);
@@ -212,10 +191,7 @@ export class GameComponent implements OnInit, OnDestroy {
   swapTurns() {
     if (this.gameDetails['turn'] === 1 && this.player.playerNumber === 1) {
       this.player.thisPlayersTurn = true;
-    } else if (
-      this.gameDetails['turn'] === 2 &&
-      this.player.playerNumber === 2
-    ) {
+    } else if (this.gameDetails['turn'] === 2 &&this.player.playerNumber === 2) {
       this.player.thisPlayersTurn = true;
     } else {
       this.player.thisPlayersTurn = false;
@@ -235,16 +211,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   placePiece(event, x, y) {
-    if (
-      event.srcElement.innerHTML.trim() === '' &&
-      this.player.thisPlayersTurn === true &&
-      this.opponentFound == true
-    ) {
-      this.player.playerNumber === 1
-        ? (event.srcElement.innerHTML = 'X')
-        : (event.srcElement.innerHTML = 'O');
+    if (event.srcElement.innerHTML.trim() === '' && this.player.thisPlayersTurn === true && this.opponentFound == true) {
+      this.player.playerNumber === 1 ? (event.srcElement.innerHTML = 'X') : (event.srcElement.innerHTML = 'O');
       this.player.thisPlayersTurn = false;
-      console.log(event);
       event.srcElement.style.color = event.srcElement.innerHTML === "X" ? 'lightblue' : 'orange';
       this.moves.push(`${x} ${y}`);
       const serverData = JSON.stringify({
@@ -258,11 +227,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   voteForRematch() {
     this.rematchRequested = this.rematchRequested ? false : true;
-    this.socket.voteForRematch(
-      this.gameCode,
-      this.playerNumber,
-      this.rematchRequested
-    );
+    this.socket.voteForRematch(this.gameCode, this.playerNumber, this.rematchRequested);
   }
 
   listenForRematch() {
@@ -271,10 +236,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.rematchSubscription = this.socket.listenForRematchEmitter.subscribe(
       (val) => {
         if (val['rematch'] === false) {
-          if (
-            val['playerNumber'] !== this.playerNumber &&
-            val['vote'] === true
-          ) {
+          if (val['playerNumber'] !== this.playerNumber && val['vote'] === true) {
             this.opponentWantsRematch = true;
             this.chat.push('System: Your opponent wants a rematch!');
           } else if (val['vote'] === false) {
@@ -286,14 +248,10 @@ export class GameComponent implements OnInit, OnDestroy {
           this.opponentWantsRematch = false;
           this.gameDetails = val['gameData'];
           this.players = this.gameDetails['players'];
-          this.player.thisPlayersTurn =
-            this.player.playerNumber === 1 ? false : true;
+          this.player.thisPlayersTurn = this.player.playerNumber === 1 ? false : true;
           this.player.playerNumber = this.player.playerNumber === 1 ? 2 : 1;
           this.playerNumber = this.player.playerNumber;
-          this.player.opponentName =
-            this.player.playerNumber === 1
-              ? this.players['p2']
-              : this.players['p1'];
+          this.player.opponentName = this.player.playerNumber === 1 ? this.players['p2'] : this.players['p1'];
           this.opponentName = this.player.opponentName;
           this.moveCounter = 0;
           this.player.playerPiece = this.player.playerPiece === "X" ? "O" : "X";
@@ -303,12 +261,7 @@ export class GameComponent implements OnInit, OnDestroy {
           this.pressedResign = false;
           this.draw = false;
           this.moves = [];
-          localStorage.setItem(
-            'rejoinCode',
-            this.playerNumber === 1
-              ? this.gameDetails['join_codes']['p1']
-              : this.gameDetails['join_codes']['p2']
-          );
+          localStorage.setItem('rejoinCode', this.playerNumber === 1 ? this.gameDetails['join_codes']['p1'] : this.gameDetails['join_codes']['p2']);
           delete this.gameDetails['join_codes'];
           this.loadBoard();
           this.opponentFound = true;
@@ -349,11 +302,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onSubmitMessage() {
     this.disableChat = true;
-    this.socket.sendMessage(
-      this.gameCode,
-      this.chatForm.value.message,
-      this.playerName
-    );
+    this.socket.sendMessage(this.gameCode, this.chatForm.value.message, this.playerName);
     this.chat.push(`${this.playerName}: ${this.chatForm.value.message}`);
     this.chatForm.reset();
     this.disableChat = false;
