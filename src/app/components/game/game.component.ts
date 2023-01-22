@@ -59,7 +59,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.player.playerName = 'pizza';
     if (this.player.playerName !== undefined) {
       this.playerName = this.player.playerName;
       this.gameCreator = true;
@@ -303,6 +302,7 @@ export class GameComponent implements OnInit, OnDestroy {
           this.resigned = false;
           this.pressedResign = false;
           this.draw = false;
+          this.moves = [];
           localStorage.setItem(
             'rejoinCode',
             this.playerNumber === 1

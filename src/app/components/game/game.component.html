@@ -57,10 +57,14 @@
         </div>
     </section>
 
-    <div class="chat-area" *ngFor="let move of moves; let i = index">
-        <span *ngIf="moves.length === 1">{{ move }}</span>
-        <span *ngIf="i % 2 === 0">{{ moves[i-1] }} {{ moves[i] }}</span>
-        <span *ngIf="moves.length > 1 && moves.length === i && i % 2 !== 0">{{ move }}</span>
+    <div class="chat-area" *ngIf="playerName && doneLoading">
+        <div>
+            <span *ngFor="let move of moves; let even = even">
+                {{ move }} 
+                <span *ngIf="even"> | </span> 
+                <br *ngIf="!even">
+            </span>
+        </div>
     </div>
 
     <div *ngIf="playerName && !opponentName && doneLoading">
